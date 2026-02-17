@@ -1,0 +1,100 @@
+package com.nexushardware.app
+
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+//Mi db del proyecto
+class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.db",null, 1) {
+
+    companion object {
+        const val ESTADO_PENDIENTE = 0
+        const val ESTADO_SINCRONIZADO = 1
+    }
+
+    override fun onCreate(db: SQLiteDatabase?) {
+
+        val crearTablaUsuarios = """
+            CREATE TABLE usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE,
+                password_hash TEXT, 
+                nombre_completo TEXT,
+                telefono TEXT,
+                es_admin INTEGER DEFAULT 0
+            )
+        """.trimIndent()
+        db?.execSQL(crearTablaUsuarios)
+
+
+        val crearTablaProductos = """
+            CREATE TABLE productos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT,
+                descripcion TEXT,
+                precio REAL,
+                stock INTEGER,
+                categoria TEXT,
+                url_imagen TEXT
+            )
+        """.trimIndent()
+        db?.execSQL(crearTablaProductos)
+
+        val crearTablaCarrito = """
+            CREATE TABLE carrito (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER,
+                producto_id INTEGER,
+                cantidad INTEGER,
+                fecha_agregado TEXT,
+                estado_sync INTEGER DEFAULT $ESTADO_PENDIENTE,
+                FOREIGN KEY(usuario_id) REFERENCES usuarios(id),
+                FOREIGN KEY(producto_id) REFERENCES productos(id)
+            )
+        """.trimIndent()
+        db?.execSQL(crearTablaCarrito)
+
+        insertarDatosPrueba(db)
+    }
+
+    private fun insertarDatosPrueba(db: SQLiteDatabase?) {
+       //inserto datos de prueba
+        db?.execSQL("INSERT INTO usuarios (email, password_hash, nombre_completo, es_admin) VALUES ('admin@nexus.pe', '123456', 'Admin Nexus', 1)")
+
+        // Productos de ejemplo para que la lista no salga vacía
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES ('GeForce RTX 4060', 'MSI Ventus 2X Black OC', 320.00, 'GPU', 10)")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES ('Ryzen 5 7600X', 'Procesador 6 núcleos AM5', 249.00, 'CPU', 15)")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES ('Logitech G502 HERO', 'Mouse Gamer Alta Precisión', 45.00, 'Perifericos', 30)")
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        // En desarrollo, si cambias la BD, borramos todo y recreamos
+        db?.execSQL("DROP TABLE IF EXISTS carrito")
+        db?.execSQL("DROP TABLE IF EXISTS productos")
+        db?.execSQL("DROP TABLE IF EXISTS usuarios")
+        onCreate(db)
+    }
+
+    //DAOs
+
+  //login
+    fun validarLogin(email: String, pass: String): Boolean {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM usuarios WHERE email=? AND password_hash=?", arrayOf(email, pass))
+        val existe = cursor.moveToFirst()
+        cursor.close()
+        return existe
+    }
+
+    //clientes
+    fun registrarUsuario(nombre: String, email: String, pass: String): Long {
+        val db = this.writableDatabase
+        val valores = android.content.ContentValues().apply {
+            put("nombre_completo", nombre)
+            put("email", email)
+            put("password_hash", pass)
+        }
+        return db.insert("usuarios", null, valores)
+    }
+
+}
