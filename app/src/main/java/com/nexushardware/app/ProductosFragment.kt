@@ -31,15 +31,21 @@ class ProductosFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        // 1. Obtener datos de SQLite
         val lista = obtenerProductosDeBD()
 
-        // 2. Configurar Adapter
-        val adapter = ProductoAdapter(lista) { productoSeleccionado ->
-            Toast.makeText(context, "Seleccionaste: ${productoSeleccionado.nombre}", Toast.LENGTH_SHORT).show()
+        val adapter = ProductoAdapter(lista) { producto ->
+            // Creamos el Intent para abrir el detalle
+            val intent = android.content.Intent(context, DetalleActivity::class.java).apply {
+                putExtra("nombre", producto.nombre)
+                putExtra("descripcion", producto.descripcion)
+                putExtra("precio", producto.precio)
+                putExtra("stock", producto.stock)
+                putExtra("categoria", producto.categoria)
+                // putExtra("url", producto.urlImagen)
+            }
+            startActivity(intent)
         }
 
-        // 3. Asignar al RecyclerView
         binding.rvProductos.layoutManager = LinearLayoutManager(context)
         binding.rvProductos.adapter = adapter
     }
