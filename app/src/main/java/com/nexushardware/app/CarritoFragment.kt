@@ -70,15 +70,14 @@ class CarritoFragment : Fragment() {
     }
 
     private fun eliminarItem(idCarrito: Int, position: Int) {
-        val filas = dbHelper.eliminarItemCarrito(idCarrito)
-        if (filas > 0) {
-            // Aquí usamos snackbar en lugar del toast(estabab feo)
-            Snackbar.make(binding.root, "Producto eliminado", Snackbar.LENGTH_LONG)
-                .setAction("Deshacer") {
-                    // Aquí podríamos poner lógica para restaurar (Tarea avanzada)
-                }
-                .show()
+        //guardamos una copia temporal del producto antes de borrarlo
+        val itemBorrado = listaItems[position]
 
+        //lo borramos de la db
+        val filas = dbHelper.eliminarItemCarrito(idCarrito)
+
+        if (filas > 0) {
+            // lo quitamos de la vista
             adapter.eliminarItem(position)
             calcularTotal()
 
@@ -86,6 +85,17 @@ class CarritoFragment : Fragment() {
                 binding.rvCarrito.visibility = View.GONE
                 binding.tvVacio.visibility = View.VISIBLE
             }
+            //usamos el snackbar en lugar del toast y muestra la opcion deshacer
+            Snackbar.make(binding.root, "${itemBorrado.nombre} eliminado", Snackbar.LENGTH_LONG)
+                .setAction("Deshacer") {
+                    // si el user presiona deshacer lo volvemos a insertar en la db
+                    // se usa el user de prueba que es admin
+                    dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
+                    //se recarga toda la lista desde la bd para que vuelva a aparecer
+                    cargarDatos()
+                }
+                .setActionTextColor(android.graphics.Color.parseColor("#03DAC5"))
+                .show()
         }
     }
 

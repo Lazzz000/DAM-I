@@ -108,7 +108,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         val resultado: Long
 
         if (cursor.moveToFirst()) {
-            // Si existe hacemos update acumulando la cantidad
+            // Si existe hacemos un update acumulando la cantidad
             val idCarritoExistente = cursor.getInt(0)
             val cantidadActual = cursor.getInt(1)
 
