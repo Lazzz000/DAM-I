@@ -41,6 +41,7 @@ class DetalleActivity : AppCompatActivity() {
         binding.tvPrecioDetalle.text = format.format(precio)
 
         //logica del boton agregar
+        binding.fabAgregar.setOnClickListener {
         if (idProducto != -1) {
             val db = NexusBDHelper(this)
 
@@ -52,9 +53,10 @@ class DetalleActivity : AppCompatActivity() {
                 Toast.makeText(this, "✅ Agregado al Carrito", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "❌ Error al agregar", Toast.LENGTH_SHORT).show()
-            }
-        } else {
+                }
+            } else {
             Toast.makeText(this, "Error: Producto no identificado", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

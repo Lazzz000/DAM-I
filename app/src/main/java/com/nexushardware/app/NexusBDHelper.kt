@@ -111,4 +111,41 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         return resultado
     }
 
+    fun obtenerCarrito(usuarioId: Int): List<CarritoItem> {
+        val lista = mutableListOf<CarritoItem>()
+        val db = this.readableDatabase
+
+        // query para obtener soloo la cantidad del carrito Y el nombre/precio del producto
+        //solo traemos los que tengan estado_sync = 0 (Pendientes de compra)
+        val sql = """
+            SELECT c.id, p.id, p.nombre, p.precio, c.cantidad, p.url_imagen 
+            FROM carrito c 
+            INNER JOIN productos p ON c.producto_id = p.id 
+            WHERE c.usuario_id = ? AND c.estado_sync = $ESTADO_PENDIENTE
+        """
+
+        val cursor = db.rawQuery(sql, arrayOf(usuarioId.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val idCarrito = cursor.getInt(0)
+                val idProducto = cursor.getInt(1)
+                val nombre = cursor.getString(2)
+                val precio = cursor.getDouble(3)
+                val cantidad = cursor.getInt(4)
+                val imagen = cursor.getString(5) ?: ""
+
+                lista.add(CarritoItem(idCarrito, idProducto, nombre, precio, cantidad, imagen))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return lista
+    }
+
+    //Función para borrar un item del carrito
+    fun eliminarItemCarrito(idCarrito: Int): Int {
+        val db = this.writableDatabase
+        return db.delete("carrito", "id=?", arrayOf(idCarrito.toString()))
+    }
+
 }
