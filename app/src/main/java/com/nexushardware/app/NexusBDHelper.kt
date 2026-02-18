@@ -97,16 +97,38 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         return db.insert("usuarios", null, valores)
     }
 
+    //funcion mejorada porque verifica si el usuario ya tiene en el carrito mas unidades del mismo item
     fun agregarAlCarrito(usuarioId: Int, productoId: Int, cantidad: Int): Long {
         val db = this.writableDatabase
-        val values = android.content.ContentValues().apply {
-            put("usuario_id", usuarioId)
-            put("producto_id", productoId)
-            put("cantidad", cantidad)
-            put("fecha_agregado", java.util.Date().toString()) // Fecha actual simple
-            put("estado_sync", ESTADO_PENDIENTE) // Importante para sincronizar luego
+
+        // Validamo si ya existe este producto en el carrito de un usuario
+        val sqlConsulta = "SELECT id, cantidad FROM carrito WHERE usuario_id=? AND producto_id=? AND estado_sync=?"
+        val cursor = db.rawQuery(sqlConsulta, arrayOf(usuarioId.toString(), productoId.toString(), ESTADO_PENDIENTE.toString()))
+
+        val resultado: Long
+
+        if (cursor.moveToFirst()) {
+            // Si existe hacemos update acumulando la cantidad
+            val idCarritoExistente = cursor.getInt(0)
+            val cantidadActual = cursor.getInt(1)
+
+            val values = android.content.ContentValues().apply {
+                put("cantidad", cantidadActual + cantidad)
+            }
+            // actualizamos esa fila especifica
+            resultado = db.update("carrito", values, "id=?", arrayOf(idCarritoExistente.toString())).toLong()
+        } else {
+            //si no existe, hacemos el insert normal
+            val values = android.content.ContentValues().apply {
+                put("usuario_id", usuarioId)
+                put("producto_id", productoId)
+                put("cantidad", cantidad)
+                put("fecha_agregado", java.util.Date().toString())
+                put("estado_sync", ESTADO_PENDIENTE)
+            }
+            resultado = db.insert("carrito", null, values)
         }
-        val resultado = db.insert("carrito", null, values)
+        cursor.close()
         db.close()
         return resultado
     }
