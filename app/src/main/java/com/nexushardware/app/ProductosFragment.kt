@@ -36,6 +36,7 @@ class ProductosFragment : Fragment() {
         val adapter = ProductoAdapter(lista) { producto ->
             // Creamos el Intent para abrir el detalle
             val intent = android.content.Intent(context, DetalleActivity::class.java).apply {
+                putExtra("id", producto.id)
                 putExtra("nombre", producto.nombre)
                 putExtra("descripcion", producto.descripcion)
                 putExtra("precio", producto.precio)

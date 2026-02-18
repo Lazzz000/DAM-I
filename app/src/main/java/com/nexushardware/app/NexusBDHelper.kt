@@ -97,4 +97,18 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         return db.insert("usuarios", null, valores)
     }
 
+    fun agregarAlCarrito(usuarioId: Int, productoId: Int, cantidad: Int): Long {
+        val db = this.writableDatabase
+        val values = android.content.ContentValues().apply {
+            put("usuario_id", usuarioId)
+            put("producto_id", productoId)
+            put("cantidad", cantidad)
+            put("fecha_agregado", java.util.Date().toString()) // Fecha actual simple
+            put("estado_sync", ESTADO_PENDIENTE) // Importante para sincronizar luego
+        }
+        val resultado = db.insert("carrito", null, values)
+        db.close()
+        return resultado
+    }
+
 }

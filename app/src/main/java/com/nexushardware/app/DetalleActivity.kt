@@ -24,6 +24,7 @@ class DetalleActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { onBackPressed() }
 
         // Recibir datos del Intent
+        val idProducto = intent.getIntExtra("id", -1)
         val nombre = intent.getStringExtra("nombre") ?: ""
         val precio = intent.getDoubleExtra("precio", 0.0)
         val descripcion = intent.getStringExtra("descripcion") ?: ""
@@ -39,10 +40,21 @@ class DetalleActivity : AppCompatActivity() {
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         binding.tvPrecioDetalle.text = format.format(precio)
 
-        //acción del Botón Flotante
-        binding.fabAgregar.setOnClickListener {
-            Toast.makeText(this, "¡$nombre agregado al carrito!", Toast.LENGTH_LONG).show()
-            // en adelante aqui guardaremos ta tabla carrito
+        //logica del boton agregar
+        if (idProducto != -1) {
+            val db = NexusBDHelper(this)
+
+            // Por ahora usamos el usuario_id del admin
+            // A futuro ya se usara el id del usuario logueado real
+            val exito = db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
+
+            if (exito > -1) {
+                Toast.makeText(this, "✅ Agregado al Carrito", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "❌ Error al agregar", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Error: Producto no identificado", Toast.LENGTH_SHORT).show()
         }
     }
 }
