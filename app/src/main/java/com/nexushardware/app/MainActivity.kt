@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_inicio -> replaceFragment(InicioFragment())
                 R.id.nav_productos -> replaceFragment(ProductosFragment())
                 R.id.nav_mapa -> replaceFragment(MapaFragment())
-                R.id.nav_contacto -> replaceFragment(CarritoFragment())//lo reemplazo temporalmente para probar el Fragmentcarrito
+                R.id.nav_contacto -> replaceFragment(ContactoFragment())
+                R.id.nav_carrito -> replaceFragment(CarritoFragment())//agregado temporalmente
             }
             true
         }
