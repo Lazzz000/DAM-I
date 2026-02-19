@@ -29,9 +29,13 @@ class CarritoFragment : Fragment() {
         dbHelper = NexusBDHelper(requireContext())
 
         cargarDatos()
-
+        //llamamos a la fun y ajustamos la funcion del btn 
         binding.btnCheckout.setOnClickListener {
-            Snackbar.make(binding.root, "Función de Compra Próximamente (OBJ 5)", Snackbar.LENGTH_LONG).show()
+            if (listaItems.isNotEmpty()) {
+                realizarCompra()
+            } else {
+                Snackbar.make(binding.root, "Agrega productos antes de comprar", Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
 
