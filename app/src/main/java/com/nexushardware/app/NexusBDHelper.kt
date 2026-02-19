@@ -170,4 +170,23 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         return db.delete("carrito", "id=?", arrayOf(idCarrito.toString()))
     }
 
+    //nueva funcion para procesar la compra
+    fun procesarCompra(usuarioId: Int): Int {
+        val db = this.writableDatabase
+
+        val values = android.content.ContentValues().apply {
+            put("estado_sync", ESTADO_SINCRONIZADO)
+        }
+
+        // aqui se actualiza todos los registros pendientes del usuario
+        val filasActualizadas = db.update(
+            "carrito",
+            values,
+            "usuario_id=? AND estado_sync=?",
+            arrayOf(usuarioId.toString(), ESTADO_PENDIENTE.toString())
+        )
+
+        db.close()
+        return filasActualizadas// devuelve cuantos productos se compraron
+    }
 }

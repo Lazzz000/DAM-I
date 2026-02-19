@@ -99,6 +99,30 @@ class CarritoFragment : Fragment() {
         }
     }
 
+    private fun realizarCompra() {
+        // prueba con admin
+        val productosComprados = dbHelper.procesarCompra(1)
+
+        if (productosComprados > 0) {
+            // limpia el texto de la vista
+            listaItems.clear()
+            adapter.notifyDataSetChanged()
+
+            // actualziamos la interfaz para mostrar que esta vacio
+            binding.rvCarrito.visibility = View.GONE
+            binding.tvVacio.visibility = View.VISIBLE
+            binding.tvVacio.text = "¡Compra realizada con éxito!\nEstamos preparando tu pedido."
+            binding.tvVacio.setTextColor(android.graphics.Color.parseColor("#03DAC5"))
+            binding.tvTotalPagar.text = "S/ 0.00"
+
+            // snackbar para el mensaje
+            Snackbar.make(binding.root, "Se procesaron $productosComprados productos.", Snackbar.LENGTH_LONG)
+                .setBackgroundTint(android.graphics.Color.parseColor("#03DAC5"))
+                .setTextColor(android.graphics.Color.BLACK)
+                .show()
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
