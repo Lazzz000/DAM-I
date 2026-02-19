@@ -29,7 +29,7 @@ class CarritoFragment : Fragment() {
         dbHelper = NexusBDHelper(requireContext())
 
         cargarDatos()
-        //llamamos a la fun y ajustamos la funcion del btn 
+        //llamamos a la fun y ajustamos la funcion del btn
         binding.btnCheckout.setOnClickListener {
             if (listaItems.isNotEmpty()) {
                 realizarCompra()
