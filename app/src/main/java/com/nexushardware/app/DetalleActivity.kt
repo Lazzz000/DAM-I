@@ -7,6 +7,8 @@ import com.nexushardware.app.databinding.ActivityDetalleBinding
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.bumptech.glide.Glide
+
 class DetalleActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetalleBinding
@@ -30,12 +32,20 @@ class DetalleActivity : AppCompatActivity() {
         val descripcion = intent.getStringExtra("descripcion") ?: ""
         val stock = intent.getIntExtra("stock", 0)
         val categoria = intent.getStringExtra("categoria") ?: ""
+        val urlImagen = intent.getStringExtra("url") ?: ""
+
 
         //sirve para llenar la UI
         binding.tvNombreDetalle.text = nombre
         binding.tvDescripcionDetalle.text = descripcion
         binding.tvStock.text = "Stock: $stock unidades"
         binding.chipCategoria.text = categoria
+        //carga la imagen con glide
+        Glide.with(this)
+            .load(urlImagen)
+            .centerCrop() 
+            .into(binding.imgDetalle)
+
 
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         binding.tvPrecioDetalle.text = format.format(precio)

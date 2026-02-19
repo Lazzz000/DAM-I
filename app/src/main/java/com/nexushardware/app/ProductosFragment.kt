@@ -42,7 +42,7 @@ class ProductosFragment : Fragment() {
                 putExtra("precio", producto.precio)
                 putExtra("stock", producto.stock)
                 putExtra("categoria", producto.categoria)
-                // putExtra("url", producto.urlImagen)
+                putExtra("url", producto.urlImagen)
             }
             startActivity(intent)
         }
