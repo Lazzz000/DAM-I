@@ -61,10 +61,10 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
        //inserto datos de prueba
         db?.execSQL("INSERT INTO usuarios (email, password_hash, nombre_completo, es_admin) VALUES ('admin@nexus.pe', '123456', 'Admin Nexus', 1)")
 
-        // Productos de ejemplo para que la lista no salga vacía
-        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES ('GeForce RTX 4060', 'MSI Ventus 2X Black OC', 320.00, 'GPU', 10)")
-        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES ('Ryzen 5 7600X', 'Procesador 6 núcleos AM5', 249.00, 'CPU', 15)")
-        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock) VALUES ('Logitech G502 HERO', 'Mouse Gamer Alta Precisión', 45.00, 'Perifericos', 30)")
+        // se agregan la url para usar imagenes por glide
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('NVIDIA RTX 4090', 'Tarjeta gráfica de última generación 24GB. Máximo rendimiento para gaming en 4K y renderizado 3D.', 8500.00, 'GPU', 5, 'https://m.media-amazon.com/images/I/71WYBstFURL._AC_SL1500_.jpg')")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('Intel Core i9 14900K', 'Procesador 24 núcleos desbloqueado. Frecuencia turbo máxima de 6.0 GHz.', 2800.00, 'CPU', 10, 'https://m.media-amazon.com/images/I/61rPEWcI5uL._AC_SL1500_.jpg')")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('Teclado Mecánico RGB', 'Switch Cherry MX Blue, chasis de aluminio y reposamuñecas.', 450.00, 'Perifericos', 20, 'https://m.media-amazon.com/images/I/71cngLX2xaL._AC_SL1500_.jpg')")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

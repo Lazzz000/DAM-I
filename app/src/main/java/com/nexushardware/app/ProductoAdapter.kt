@@ -7,6 +7,8 @@ import com.nexushardware.app.databinding.ItemProductoBinding
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.bumptech.glide.Glide
+
 class ProductoAdapter(
     private var listaProductos: List<Producto>,
     private val onProductoClick: (Producto) -> Unit // Para manejar clics en el futuro
@@ -29,8 +31,12 @@ class ProductoAdapter(
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         holder.binding.tvPrecio.text = format.format(producto.precio)
 
-        // Aquí podríamos cargar la imagen real con Glide usando producto.urlImagen
-        // Por ahora usamos el placeholder del XML
+        //cargar imagen con Glide
+        Glide.with(holder.itemView.context)
+            .load(producto.urlImagen)
+            .placeholder(android.R.drawable.ic_menu_gallery) //imagen temporal mientras carga
+            .error(android.R.drawable.ic_dialog_alert)  //imagen si hay error de reed
+            .into(holder.binding.imgProducto)
 
         holder.binding.root.setOnClickListener {
             onProductoClick(producto)
