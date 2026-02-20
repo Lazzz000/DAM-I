@@ -36,6 +36,9 @@
 
         <activity
             android:name=".ui.detail.DetalleActivity" />
+
+        <activity
+            android:name=".ui.admin.AgregarProductoActivity" />
     </application>
 
 </manifest>
