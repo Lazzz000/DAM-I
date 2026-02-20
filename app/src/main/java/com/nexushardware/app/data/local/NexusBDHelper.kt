@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.nexushardware.app.data.model.CarritoItem
 import java.util.Date
+import com.nexushardware.app.data.model.Producto
 
 //Mi db del proyecto
 class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.db",null, 1) {
@@ -235,6 +236,34 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         if (cursor.moveToFirst()) {
             do {
                 lista.add(cursor.getString(0))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return lista
+    }
+
+    //Función para buscar productos filtrando dinamicamente
+    fun buscarProductos(query: String): List<Producto> {
+        val lista = mutableListOf<Producto>()
+        val db = this.readableDatabase
+
+        //buscamos tanto en el nombre como en la categoría
+        val sql = "SELECT * FROM productos WHERE nombre LIKE ? OR categoria LIKE ?"
+        val parametro = "%$query%"
+
+        val cursor = db.rawQuery(sql, arrayOf(parametro, parametro))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(0)
+                val nombre = cursor.getString(1)
+                val descripcion = cursor.getString(2)
+                val precio = cursor.getDouble(3)
+                val stock = cursor.getInt(4)
+                val categoria = cursor.getString(5)
+                val url = cursor.getString(6) ?: ""
+
+                lista.add(Producto(id, nombre, descripcion, precio, stock, categoria, url))
             } while (cursor.moveToNext())
         }
         cursor.close()
