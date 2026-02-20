@@ -8,6 +8,7 @@ import com.nexushardware.app.databinding.ItemCarritoBinding
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.bumptech.glide.Glide
 class CarritoAdapter (
     private var lista: MutableList<CarritoItem>,
     private val onEliminarClick: (Int, Int) -> Unit // (idCarrito, posicion)
@@ -27,6 +28,15 @@ class CarritoAdapter (
 
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         holder.binding.tvPrecioCart.text = format.format(item.precio * item.cantidad)
+
+        //Agregar glide para la img de prod en carrito
+        Glide.with(holder.itemView.context)
+            .load(item.urlImagen.takeIf { it.isNotEmpty() })
+            .placeholder(android.R.drawable.ic_menu_gallery)
+            .error(android.R.drawable.ic_menu_gallery)
+            .fallback(android.R.drawable.ic_menu_gallery)
+            .centerCrop()
+            .into(holder.binding.imgProductoCart)
 
         holder.binding.btnEliminar.setOnClickListener {
             onEliminarClick(item.idCarrito, position)
