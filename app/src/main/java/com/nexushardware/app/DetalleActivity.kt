@@ -43,7 +43,7 @@ class DetalleActivity : AppCompatActivity() {
         //carga la imagen con glide
         Glide.with(this)
             .load(urlImagen)
-            .centerCrop() 
+            .centerCrop()
             .into(binding.imgDetalle)
 
 
