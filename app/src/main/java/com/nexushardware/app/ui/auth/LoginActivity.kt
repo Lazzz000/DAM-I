@@ -27,42 +27,58 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        //limpiar el error en caso haya,cuando el usuario escribe su correo
-        binding.etEmail.doOnTextChanged { _, _, _, _ ->
-            binding.tilEmail.error = null
-        }
-        // btn ingresar
+        //limpia los errores visuales cuando se escribee
+        binding.etEmail.doOnTextChanged { _, _, _, _ -> binding.tilEmail.error = null }
+        binding.etPassword.doOnTextChanged { _, _, _, _ -> binding.tilPassword.error = null }
+
+        //btn ingresar
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val pass = binding.etPassword.text.toString().trim()
 
-            if (email.isEmpty() || pass.isEmpty()) {
-                Snackbar.make(binding.root, "Por favor complete todos los campos", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            //validar el formato del correoo
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                binding.tilEmail.error = "Ingrese un correo electrónico válido"
-                return@setOnClickListener
+            var esValidoParaEnviar = true
+
+            //validar correo visualmente
+            if (email.isEmpty()) {
+                binding.tilEmail.error = "Ingrese su correo"
+                esValidoParaEnviar = false
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.tilEmail.error = "Ingrese un correo válido"
+                esValidoParaEnviar = false
             }
 
-            // validacion de login
-            val esValido = dbHelper.validarLogin(email, pass)
+            //validar contraseña visualmente
+            if (pass.isEmpty()) {
+                binding.tilPassword.error = "Ingrese su contraseña"
+                esValidoParaEnviar = false
+            }
 
-            if (esValido) {
-                // login exitoso
+            //si hay errores en las cajas detenemos el proceso aqui
+            if (!esValidoParaEnviar) return@setOnClickListener
+
+            // validacion de login en base de datos
+            val loginExitoso = dbHelper.validarLogin(email, pass)
+
+            if (loginExitoso) {
+                //exitoso
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
-                finish() // Cerramos Login para que no pueda volver atrás
+                finish() //cerramos Login para que no pueda volver atrás
             } else {
-                Snackbar.make(binding.root, "Correo o contraseña incorrectos", Snackbar.LENGTH_SHORT).show()
+                //Snackbar error
+                Snackbar.make(binding.root, "❌ Correo o contraseña incorrectos", Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(android.graphics.Color.parseColor("#CF6679"))
+                    .setTextColor(android.graphics.Color.BLACK)
+                    .show()
             }
         }
 
-        // btn registrarsee
+        //btn registrarse
         binding.tvRegister.setOnClickListener {
-            Toast.makeText(this, "Próximamente: Módulo de Registro", Toast.LENGTH_SHORT).show()
-            // Aquí iría: startActivity(Intent(this, RegisterActivity::class.java))
+            Snackbar.make(binding.root, "Aún falta agregar este módulo", Snackbar.LENGTH_SHORT)
+                .setBackgroundTint(android.graphics.Color.parseColor("#03DAC5"))
+                .setTextColor(android.graphics.Color.BLACK)
+                .show()
         }
     }
 }
