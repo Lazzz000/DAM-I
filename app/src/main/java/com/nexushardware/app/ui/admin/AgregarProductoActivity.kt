@@ -19,11 +19,28 @@ class AgregarProductoActivity : AppCompatActivity() {
 
         dbHelper = NexusBDHelper(this)
 
+        //llenamos el menu al abrir la pantalla
+        cargarCategorias()
+
         binding.btnGuardarProducto.setOnClickListener {
             registrarNuevoProducto()
         }
     }
 
+    private fun cargarCategorias() {
+        //obtener lista de bd
+        val listaCategorias = dbHelper.obtenerCategorias()
+
+        // creamos un adaptador para los datos y el diseño
+        val adapter = android.widget.ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            listaCategorias
+        )
+
+        //Se lo asignamos al AutoCompleteTextView
+        binding.etCategoriaProd.setAdapter(adapter)
+    }
     private fun registrarNuevoProducto() {
         // primero se captura los datos
         val nombre = binding.etNombreProd.text.toString().trim()
