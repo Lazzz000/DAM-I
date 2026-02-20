@@ -1,6 +1,6 @@
 package com.nexushardware.app.utils.adapters
 
-import android.R
+import com.nexushardware.app.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -34,9 +34,10 @@ class ProductoAdapter(
 
         //cargar imagen con Glide
         Glide.with(holder.itemView.context)
-            .load(producto.urlImagen)
-            .placeholder(R.drawable.ic_menu_gallery) //imagen temporal mientras carga
-            .error(R.drawable.ic_dialog_alert)  //imagen si hay error de reed
+            .load(producto.urlImagen.takeIf { it.isNotEmpty() })
+            .placeholder(R.drawable.ic_image_placeholder)
+            .error(R.drawable.ic_image_placeholder)
+            .fallback(R.drawable.ic_image_placeholder)
             .into(holder.binding.imgProducto)
 
         holder.binding.root.setOnClickListener {
