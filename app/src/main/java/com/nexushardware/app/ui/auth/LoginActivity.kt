@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.nexushardware.app.ui.main.MainActivity
 import com.nexushardware.app.data.local.NexusBDHelper
 import com.nexushardware.app.databinding.ActivityLoginBinding
-
+import android.util.Patterns
+import com.google.android.material.snackbar.Snackbar
+import androidx.core.widget.doOnTextChanged
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -25,17 +27,26 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        //limpiar el error en caso haya,cuando el usuario escribe su correo
+        binding.etEmail.doOnTextChanged { _, _, _, _ ->
+            binding.tilEmail.error = null
+        }
         // btn ingresar
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val pass = binding.etPassword.text.toString().trim()
 
             if (email.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Por favor complete todos los campos", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            //validar el formato del correoo
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.tilEmail.error = "Ingrese un correo electrónico válido"
                 return@setOnClickListener
             }
 
-            // validacion
+            // validacion de login
             val esValido = dbHelper.validarLogin(email, pass)
 
             if (esValido) {
@@ -44,8 +55,7 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish() // Cerramos Login para que no pueda volver atrás
             } else {
-                binding.tilPassword.error = "Credenciales incorrectas"
-                Toast.makeText(this, "Error de acceso", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Correo o contraseña incorrectos", Snackbar.LENGTH_SHORT).show()
             }
         }
 
