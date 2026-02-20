@@ -206,4 +206,23 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         db.close()
         return filasActualizadas// devuelve cuantos productos se compraron
     }
+
+    //MODULO ADMIN: MANTINIMIENTO DE PRODYCTOS
+
+    fun agregarProducto(nombre: String, desc: String, precio: Double, stock: Int, cat: String, url: String): Long {
+        val db = this.writableDatabase
+        val values = android.content.ContentValues().apply {
+            put("nombre", nombre)
+            put("descripcion", desc)
+            put("precio", precio)
+            put("stock", stock)
+            put("categoria", cat)
+            put("url_imagen", url)
+        }
+        val resultado = db.insert("productos", null, values)
+        db.close()
+        return resultado
+    }
+
+    //faltan agregar mas funciones
 }
