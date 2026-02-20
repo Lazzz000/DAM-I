@@ -18,7 +18,6 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@android:drawable/ic_menu_gallery"
-            app:tint="#A0A0A0"
             android:scaleType="centerCrop"
             android:background="#2C2C2C"
             app:layout_constraintStart_toStartOf="parent"

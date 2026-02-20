@@ -80,9 +80,9 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         db?.execSQL("INSERT INTO categorias (nombre) VALUES ('Laptops')")
 
         // se agregan la url para usar imagenes por glide
-        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('NVIDIA RTX 4090', 'Tarjeta gráfica de última generación 24GB. Máximo rendimiento para gaming en 4K y renderizado 3D.', 8500.00, 'GPU', 5, 'https://dummyimage.com/600x600/1f1f1f/03dac5.png&text=RTX+4090')")
-        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('Intel Core i9 14900K', 'Procesador 24 núcleos desbloqueado. Frecuencia turbo máxima de 6.0 GHz.', 2800.00, 'CPU', 10, 'https://dummyimage.com/600x600/1f1f1f/03dac5.png&text=Intel+i9')")
-        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('Teclado Mecánico RGB', 'Switch Cherry MX Blue, chasis de aluminio y reposamuñecas.', 450.00, 'Perifericos', 20, 'https://dummyimage.com/600x600/1f1f1f/03dac5.png&text=Teclado+RGB')")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('NVIDIA RTX 4090', 'Tarjeta gráfica de última generación 24GB. Máximo rendimiento para gaming en 4K y renderizado 3D.', 8500.00, 'GPU', 5, 'https://m.media-amazon.com/images/I/815d7TTP5UL.jpg')")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('Intel Core i9 14900K', 'Procesador 24 núcleos desbloqueado. Frecuencia turbo máxima de 6.0 GHz.', 2800.00, 'CPU', 10, 'https://m.media-amazon.com/images/I/51ZKpp9PV0L.jpg')")
+        db?.execSQL("INSERT INTO productos (nombre, descripcion, precio, categoria, stock, url_imagen) VALUES ('Teclado Mecánico RGB', 'Switch Cherry MX Blue, chasis de aluminio y reposamuñecas.', 450.00, 'Perifericos', 20, 'https://m.media-amazon.com/images/I/71+zaeIJx0L._AC_UF894,1000_QL80_.jpg')")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
