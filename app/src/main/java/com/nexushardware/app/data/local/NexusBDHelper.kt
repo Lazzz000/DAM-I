@@ -224,5 +224,22 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         return resultado
     }
 
+    //funcionar apara obtener las categoría y llenarlas en el spinner
+    fun obtenerCategorias(): List<String> {
+        val lista = mutableListOf<String>()
+        val db = this.readableDatabase
+
+        //ordenado alfabeticamente
+        val cursor = db.rawQuery("SELECT nombre FROM categorias ORDER BY nombre ASC", null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                lista.add(cursor.getString(0))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return lista
+    }
+
     //faltan agregar mas funciones
 }
