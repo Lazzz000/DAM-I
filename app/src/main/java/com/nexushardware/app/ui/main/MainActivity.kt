@@ -5,7 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.nexushardware.app.R
 import com.nexushardware.app.databinding.ActivityMainBinding
-
+import com.nexushardware.app.ui.admin.AgregarProductoActivity
+import android.view.View
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -27,6 +28,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_contacto -> replaceFragment(ContactoFragment())
                 R.id.nav_carrito -> replaceFragment(CarritoFragment())//agregado para probarlo
             }
+            true
+        }
+        //Acceso temporal para prueba del Módulo Admin (esta oculto, mantener presionado el ícono del mapa)
+        binding.bottomNavigation.findViewById<View>(R.id.nav_mapa).setOnLongClickListener {
+            val intent = android.content.Intent(this, AgregarProductoActivity::class.java)
+            startActivity(intent)
             true
         }
     }
