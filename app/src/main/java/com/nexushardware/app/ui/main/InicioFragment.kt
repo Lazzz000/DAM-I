@@ -1,4 +1,4 @@
-package com.nexushardware.app
+package com.nexushardware.app.ui.main
 
 import android.os.Bundle
 import android.view.LayoutInflater

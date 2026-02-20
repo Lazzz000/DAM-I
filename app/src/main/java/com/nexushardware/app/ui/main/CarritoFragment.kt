@@ -1,4 +1,4 @@
-package com.nexushardware.app
+package com.nexushardware.app.ui.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.nexushardware.app.data.model.CarritoItem
+import com.nexushardware.app.data.local.NexusBDHelper
 import com.nexushardware.app.databinding.FragmentCarritoBinding
+import com.nexushardware.app.utils.adapters.CarritoAdapter
+
 import java.text.NumberFormat
 import java.util.Locale
 

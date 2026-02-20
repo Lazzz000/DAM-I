@@ -1,8 +1,9 @@
-package com.nexushardware.app
+package com.nexushardware.app.utils.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.nexushardware.app.data.model.CarritoItem
 import com.nexushardware.app.databinding.ItemCarritoBinding
 import java.text.NumberFormat
 import java.util.Locale

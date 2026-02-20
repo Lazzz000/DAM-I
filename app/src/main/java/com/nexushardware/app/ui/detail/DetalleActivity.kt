@@ -1,13 +1,13 @@
-package com.nexushardware.app
+package com.nexushardware.app.ui.detail
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.nexushardware.app.data.local.NexusBDHelper
 import com.nexushardware.app.databinding.ActivityDetalleBinding
 import java.text.NumberFormat
 import java.util.Locale
-
-import com.bumptech.glide.Glide
 
 class DetalleActivity : AppCompatActivity() {
 

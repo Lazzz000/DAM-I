@@ -1,4 +1,4 @@
-package com.nexushardware.app
+package com.nexushardware.app.data.model
 
 data class CarritoItem(
     val idCarrito: Int,

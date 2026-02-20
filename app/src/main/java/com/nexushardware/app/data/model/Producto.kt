@@ -1,4 +1,4 @@
-package com.nexushardware.app
+package com.nexushardware.app.data.model
 
 data class Producto(
     val id: Int,

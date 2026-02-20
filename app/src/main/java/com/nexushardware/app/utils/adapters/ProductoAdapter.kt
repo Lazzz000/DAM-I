@@ -1,13 +1,14 @@
-package com.nexushardware.app
+package com.nexushardware.app.utils.adapters
 
+import android.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.nexushardware.app.data.model.Producto
 import com.nexushardware.app.databinding.ItemProductoBinding
 import java.text.NumberFormat
 import java.util.Locale
-
-import com.bumptech.glide.Glide
 
 class ProductoAdapter(
     private var listaProductos: List<Producto>,
@@ -34,8 +35,8 @@ class ProductoAdapter(
         //cargar imagen con Glide
         Glide.with(holder.itemView.context)
             .load(producto.urlImagen)
-            .placeholder(android.R.drawable.ic_menu_gallery) //imagen temporal mientras carga
-            .error(android.R.drawable.ic_dialog_alert)  //imagen si hay error de reed
+            .placeholder(R.drawable.ic_menu_gallery) //imagen temporal mientras carga
+            .error(R.drawable.ic_dialog_alert)  //imagen si hay error de reed
             .into(holder.binding.imgProducto)
 
         holder.binding.root.setOnClickListener {

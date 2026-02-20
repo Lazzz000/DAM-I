@@ -1,8 +1,11 @@
-package com.nexushardware.app
+package com.nexushardware.app.data.local
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.nexushardware.app.data.model.CarritoItem
+import java.util.Date
 
 //Mi db del proyecto
 class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.db",null, 1) {
@@ -67,7 +70,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
     private fun insertarDatosPrueba(db: SQLiteDatabase?) {
        //inserto datos de prueba
         db?.execSQL("INSERT INTO usuarios (email, password_hash, nombre_completo, es_admin) VALUES ('admin@nexus.pe', '123456', 'Admin Nexus', 1)")
-        //datos de prueba categoría
+        //datos de prueba
         db?.execSQL("INSERT INTO categorias (nombre) VALUES ('GPU')")
         db?.execSQL("INSERT INTO categorias (nombre) VALUES ('CPU')")
         db?.execSQL("INSERT INTO categorias (nombre) VALUES ('Perifericos')")
@@ -103,7 +106,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
     //clientes
     fun registrarUsuario(nombre: String, email: String, pass: String): Long {
         val db = this.writableDatabase
-        val valores = android.content.ContentValues().apply {
+        val valores = ContentValues().apply {
             put("nombre_completo", nombre)
             put("email", email)
             put("password_hash", pass)
@@ -126,18 +129,18 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
             val idCarritoExistente = cursor.getInt(0)
             val cantidadActual = cursor.getInt(1)
 
-            val values = android.content.ContentValues().apply {
+            val values = ContentValues().apply {
                 put("cantidad", cantidadActual + cantidad)
             }
             // actualizamos esa fila especifica
             resultado = db.update("carrito", values, "id=?", arrayOf(idCarritoExistente.toString())).toLong()
         } else {
             //si no existe, hacemos el insert normal
-            val values = android.content.ContentValues().apply {
+            val values = ContentValues().apply {
                 put("usuario_id", usuarioId)
                 put("producto_id", productoId)
                 put("cantidad", cantidad)
-                put("fecha_agregado", java.util.Date().toString())
+                put("fecha_agregado", Date().toString())
                 put("estado_sync", ESTADO_PENDIENTE)
             }
             resultado = db.insert("carrito", null, values)
@@ -188,7 +191,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
     fun procesarCompra(usuarioId: Int): Int {
         val db = this.writableDatabase
 
-        val values = android.content.ContentValues().apply {
+        val values = ContentValues().apply {
             put("estado_sync", ESTADO_SINCRONIZADO)
         }
 

@@ -1,9 +1,11 @@
-package com.nexushardware.app
+package com.nexushardware.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.nexushardware.app.ui.main.MainActivity
+import com.nexushardware.app.data.local.NexusBDHelper
 import com.nexushardware.app.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {

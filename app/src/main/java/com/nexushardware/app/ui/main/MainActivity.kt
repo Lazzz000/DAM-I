@@ -1,12 +1,9 @@
-package com.nexushardware.app
+package com.nexushardware.app.ui.main
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-
 import androidx.fragment.app.Fragment
+import com.nexushardware.app.R
 import com.nexushardware.app.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
