@@ -42,7 +42,10 @@ class DetalleActivity : AppCompatActivity() {
         binding.chipCategoria.text = categoria
         //carga la imagen con glide
         Glide.with(this)
-            .load(urlImagen)
+            .load(urlImagen.takeIf { it.isNotEmpty() })
+            .placeholder(android.R.drawable.ic_menu_gallery)
+            .error(android.R.drawable.ic_menu_gallery)
+            .fallback(android.R.drawable.ic_menu_gallery)
             .centerCrop()
             .into(binding.imgDetalle)
 
