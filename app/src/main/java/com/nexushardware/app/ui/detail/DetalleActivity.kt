@@ -9,6 +9,9 @@ import com.nexushardware.app.databinding.ActivityDetalleBinding
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.google.android.material.snackbar.Snackbar
+import android.graphics.Color
+
 class DetalleActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetalleBinding
@@ -55,20 +58,34 @@ class DetalleActivity : AppCompatActivity() {
 
         //logica del boton agregar
         binding.fabAgregar.setOnClickListener {
-        if (idProducto != -1) {
-            val db = NexusBDHelper(this)
+            if (idProducto != -1) {
+                val db = NexusBDHelper(this)
 
-            // Por ahora usamos el usuario_id del admin
-            // A futuro ya se usara el id del usuario logueado real
-            val exito = db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
+                // Por ahora usamos el usuario_id del admin
+                val exito = db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
 
-            if (exito > -1) {
-                Toast.makeText(this, "✅ Agregado al Carrito", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "❌ Error al agregar", Toast.LENGTH_SHORT).show()
+                if (exito > -1) {
+                    //snackbar de exito
+                    Snackbar.make(binding.root, "✅ Agregado al Carrito", Snackbar.LENGTH_LONG)
+                        .setBackgroundTint(Color.parseColor("#03DAC5"))
+                        .setTextColor(Color.BLACK)
+                        .setActionTextColor(Color.BLACK) // El botón "OK" también en negro
+                        .setAction("OK") {
+                            // Se cierra automáticamente al hacer clic
+                        }
+                        .show()
+                } else {
+                    // snackbar de errores
+                    Snackbar.make(binding.root, "❌ Error al agregar", Snackbar.LENGTH_LONG)
+                        .setBackgroundTint(Color.parseColor("#CF6679"))
+                        .setTextColor(Color.BLACK)
+                        .show()
                 }
             } else {
-            Toast.makeText(this, "Error: Producto no identificado", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Error: Producto no identificado", Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.parseColor("#CF6679"))
+                    .setTextColor(Color.BLACK)
+                    .show()
             }
         }
     }
