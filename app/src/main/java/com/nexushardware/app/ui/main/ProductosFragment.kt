@@ -32,6 +32,28 @@ class ProductosFragment : Fragment() {
 
         dbHelper = NexusBDHelper(requireContext())
         setupRecyclerView()
+
+        //Logica de la barra de busqueda de prod
+        binding.searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                //Se ejecuta al presionar Enter en el teclado pero no lo usaremos porque filtraremos en vivo
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                //se ejecuta cada vez que el usuario teclea o borra una letra
+                if (newText != null) {
+                    //buscamos en la bd
+                    val listaFiltrada = dbHelper.buscarProductos(newText)
+
+                    //actualizamos el RecyclerView usando la función que ya teníamos en el Adapter
+                    val adapter = binding.rvProductos.adapter as ProductoAdapter
+                    adapter.actualizarLista(listaFiltrada)
+                }
+                return true
+            }
+        })
     }
 
     private fun setupRecyclerView() {
