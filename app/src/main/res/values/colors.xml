@@ -2,4 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="nexus_cyan">#03DAC5</color>
+    <color name="nexus_bg_dark">#121212</color>
+    <color name="nexus_surface">#1F1F1F</color>
+    <color name="nexus_surface_variant">#2C2C2C</color>
+    <color name="nexus_secondary">#3303DAC5</color>
+    <color name="nexus_text_gray">#A0A0A0</color>
+    <color name="nexus_error">#CF6679</color>
 </resources>
