@@ -2,26 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_inicio"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@drawable/ic_home"
         android:title="Inicio" />
 
     <item
         android:id="@+id/nav_productos"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_catalog"
         android:title="Catálogo" />
 
     <item
         android:id="@+id/nav_mapa"
-        android:icon="@android:drawable/ic_menu_mapmode"
+        android:icon="@drawable/ic_location"
         android:title="Ubicación" />
 
     <item
         android:id="@+id/nav_carrito"
-        android:icon= "@drawable/ic_shopping_cart"
+        android:icon="@drawable/ic_shopping_cart"
         android:title="Carrito" />
 
     <item
         android:id="@+id/nav_contacto"
-        android:icon="@android:drawable/ic_menu_call"
+        android:icon="@drawable/ic_contact"
         android:title="Contacto" />
 </menu>
