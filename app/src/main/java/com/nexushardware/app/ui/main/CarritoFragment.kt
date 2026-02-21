@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.nexushardware.app.R
 import com.nexushardware.app.data.model.CarritoItem
 import com.nexushardware.app.data.local.NexusBDHelper
 import com.nexushardware.app.databinding.FragmentCarritoBinding
@@ -33,7 +35,8 @@ class CarritoFragment : Fragment() {
         dbHelper = NexusBDHelper(requireContext())
 
         cargarDatos()
-        //llamamos a la fun y ajustamos la funcion del btn
+
+        // Botón Checkout
         binding.btnCheckout.setOnClickListener {
             if (listaItems.isNotEmpty()) {
                 realizarCompra()
@@ -41,19 +44,30 @@ class CarritoFragment : Fragment() {
                 Snackbar.make(binding.root, "Agrega productos antes de comprar", Snackbar.LENGTH_SHORT).show()
             }
         }
+
+        //Lógica del btn explorar catálogo
+        binding.btnExplorar.setOnClickListener {
+            //Buscamos la barra de navegación en el MainActivity y cambiamos a la pestaña de productos
+            val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)
+            bottomNav.selectedItemId = R.id.nav_productos
+        }
     }
 
     private fun cargarDatos() {
-        // Obtenemos los items del usuario 1 (Admin)
         listaItems = dbHelper.obtenerCarrito(1).toMutableList()
 
         if (listaItems.isEmpty()) {
             binding.rvCarrito.visibility = View.GONE
-            binding.tvVacio.visibility = View.VISIBLE
+            binding.layoutVacio.visibility = View.VISIBLE // Usamos el nuevo layout
+
+            //esto asegura de que el textoy color vuelvan a la normalidsd si se vació manualmente
+            binding.tvTituloVacio.text = "Tu carrito está vacío"
+            binding.tvTituloVacio.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
+
             binding.tvTotalPagar.text = "S/ 0.00"
         } else {
             binding.rvCarrito.visibility = View.VISIBLE
-            binding.tvVacio.visibility = View.GONE
+            binding.layoutVacio.visibility = View.GONE
 
             setupRecyclerView()
             calcularTotal()
@@ -78,28 +92,23 @@ class CarritoFragment : Fragment() {
     }
 
     private fun eliminarItem(idCarrito: Int, position: Int) {
-        //guardamos una copia temporal del producto antes de borrarlo
         val itemBorrado = listaItems[position]
-
-        //lo borramos de la db
         val filas = dbHelper.eliminarItemCarrito(idCarrito)
 
         if (filas > 0) {
-            // lo quitamos de la vista
             adapter.eliminarItem(position)
             calcularTotal()
 
             if (listaItems.isEmpty()) {
                 binding.rvCarrito.visibility = View.GONE
-                binding.tvVacio.visibility = View.VISIBLE
+                binding.layoutVacio.visibility = View.VISIBLE //aqui muestro el nuevo layout
+                binding.tvTituloVacio.text = "Tu carrito está vacío"
+                binding.tvTituloVacio.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
             }
-            //usamos el snackbar en lugar del toast y muestra la opcion deshacer
+
             Snackbar.make(binding.root, "${itemBorrado.nombre} eliminado", Snackbar.LENGTH_LONG)
                 .setAction("Deshacer") {
-                    // si el user presiona deshacer lo volvemos a insertar en la db
-                    // se usa el user de prueba que es admin
                     dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
-                    //se recarga toda la lista desde la bd para que vuelva a aparecer
                     cargarDatos()
                 }
                 .setActionTextColor(android.graphics.Color.parseColor("#03DAC5"))
@@ -108,22 +117,22 @@ class CarritoFragment : Fragment() {
     }
 
     private fun realizarCompra() {
-        // prueba con admin
         val productosComprados = dbHelper.procesarCompra(1)
 
         if (productosComprados > 0) {
-            // limpia el texto de la vista
             listaItems.clear()
             adapter.notifyDataSetChanged()
 
-            // actualziamos la interfaz para mostrar que esta vacio
+            //Actualizamos la interfaz para mostrar el estado vacío pero con éxito
             binding.rvCarrito.visibility = View.GONE
-            binding.tvVacio.visibility = View.VISIBLE
-            binding.tvVacio.text = "¡Compra realizada con éxito!\nEstamos preparando tu pedido."
-            binding.tvVacio.setTextColor(android.graphics.Color.parseColor("#03DAC5"))
+            binding.layoutVacio.visibility = View.VISIBLE
+
+            //reutilizamos el título del estado vacío para felicitar al usuario
+            binding.tvTituloVacio.text = "¡Compra exitosa!\nEstamos preparando tu pedido."
+            binding.tvTituloVacio.setTextColor(android.graphics.Color.parseColor("#03DAC5"))
+
             binding.tvTotalPagar.text = "S/ 0.00"
 
-            // snackbar para el mensaje
             Snackbar.make(binding.root, "Se procesaron $productosComprados productos.", Snackbar.LENGTH_LONG)
                 .setBackgroundTint(android.graphics.Color.parseColor("#03DAC5"))
                 .setTextColor(android.graphics.Color.BLACK)
