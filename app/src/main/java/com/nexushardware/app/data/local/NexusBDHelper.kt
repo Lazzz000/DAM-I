@@ -10,10 +10,11 @@ import com.nexushardware.app.data.model.Producto
 
 //Mi db del proyecto
 class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.db",null, 1) {
-
+//Exepcion personalizada
+class StockInsuficienteException(message: String) : Exception(message)
     companion object {
-        const val ESTADO_PENDIENTE = 0
-        const val ESTADO_SINCRONIZADO = 1
+        const val ESTADO_PENDIENTE = 0 // Producto en el carrito
+        const val ESTADO_SINCRONIZADO = 1 // Producto ya comprado
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -44,7 +45,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
                 nombre TEXT,
                 descripcion TEXT,
                 precio REAL,
-                stock INTEGER,
+                stock INTEGER CHECK(stock >= 0),--el CK evita stock negativo desde el motor de db
                 categoria TEXT,
                 url_imagen TEXT
             )
@@ -90,6 +91,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         db?.execSQL("DROP TABLE IF EXISTS carrito")
         db?.execSQL("DROP TABLE IF EXISTS productos")
         db?.execSQL("DROP TABLE IF EXISTS usuarios")
+        db?.execSQL("DROP TABLE IF EXISTS categorias")
         onCreate(db)
     }
 
@@ -191,21 +193,78 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
     //nueva funcion para procesar la compra
     fun procesarCompra(usuarioId: Int): Int {
         val db = this.writableDatabase
+        var productosDistintosProcesados = 0
 
-        val values = ContentValues().apply {
-            put("estado_sync", ESTADO_SINCRONIZADO)
+        // INICIO DE TRANSACCIÓNt0do ocurre o nada ocurre.
+        db.beginTransaction()
+        try {
+            //fase 1 de Lectura y validación
+            // Unimos carrito con productos para ver el stock real actual
+            val sqlConsulta = """
+                SELECT c.producto_id, c.cantidad, p.stock, p.nombre 
+                FROM carrito c 
+                INNER JOIN productos p ON c.producto_id = p.id 
+                WHERE c.usuario_id = ? AND c.estado_sync = $ESTADO_PENDIENTE
+            """.trimIndent()
+
+            val cursor = db.rawQuery(sqlConsulta, arrayOf(usuarioId.toString()))
+            val listaAValidar = mutableListOf<Triple<Int, Int, String>>()
+
+            if (cursor.moveToFirst()) {
+                do {
+                    val idProd = cursor.getInt(0)
+                    val cantPedida = cursor.getInt(1)
+                    val stockReal = cursor.getInt(2)
+                    val nombreProd = cursor.getString(3)
+
+                    //si un solo producto falla, lanzamos la excepción y se cancela tod0
+                    if (cantPedida > stockReal) {
+                        throw StockInsuficienteException("No hay suficiente stock de: $nombreProd (Disponible: $stockReal)")
+                    }
+
+                    // Guardamos en memoria para actualizar stock
+                    listaAValidar.add(Triple(idProd, cantPedida, nombreProd))
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+
+            if (listaAValidar.isEmpty()) return 0
+
+            //fase 2 de escrituraaa
+            //solo llegamos aquí si la fase 1 fue exitosa para TODOS los productos.
+            for (item in listaAValidar) {
+                val id = item.first
+                val cantidad = item.second
+
+                //UPDATE con triple seguridad: ID + Stock suficiente en la misma sentencia
+                val sqlUpdateStock = "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?"
+                db.execSQL(sqlUpdateStock, arrayOf(cantidad, id, cantidad))
+
+                productosDistintosProcesados++
+            }
+
+            //fase 3 para cerra el carrito
+            //cambiamos el estado a comprado/sincronizado
+            val values = ContentValues().apply {
+                put("estado_sync", ESTADO_SINCRONIZADO)
+            }
+            db.update("carrito", values, "usuario_id=? AND estado_sync=?",
+                arrayOf(usuarioId.toString(), ESTADO_PENDIENTE.toString()))
+
+            //si se llega aquí sin errores, confirmamos los cambios físicamente.
+            db.setTransactionSuccessful()
+
+        } catch (e: StockInsuficienteException) {
+            //Relanzamos la excepción para que la UI la atrape y muestre el mensaje
+            throw e
+        } catch (e: Exception) {
+            //error genérico
+            productosDistintosProcesados = 0
+        } finally {
+            //finaliza la burbuja de seguridad/ hace Rollback si no se llamó a setTransactionSuccessful
+            db.endTransaction()
         }
-
-        // aqui se actualiza todos los registros pendientes del usuario
-        val filasActualizadas = db.update(
-            "carrito",
-            values,
-            "usuario_id=? AND estado_sync=?",
-            arrayOf(usuarioId.toString(), ESTADO_PENDIENTE.toString())
-        )
-
-        db.close()
-        return filasActualizadas// devuelve cuantos productos se compraron
+        return productosDistintosProcesados
     }
 
     //MODULO ADMIN: MANTINIMIENTO DE PRODYCTOS
