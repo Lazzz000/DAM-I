@@ -108,8 +108,15 @@ class CarritoFragment : Fragment() {
 
             Snackbar.make(binding.root, "${itemBorrado.nombre} eliminado", Snackbar.LENGTH_LONG)
                 .setAction("Deshacer") {
-                    dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
-                    cargarDatos()
+                    try {
+                        dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
+                        cargarDatos()
+                }catch (e: NexusBDHelper.StockInsuficienteException){
+                        Snackbar.make(binding.root, "⚠️ ${e.message}", Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(android.graphics.Color.parseColor("#CF6679"))
+                            .setTextColor(android.graphics.Color.BLACK)
+                            .show()
+                    }
                 }
                 .setActionTextColor(android.graphics.Color.parseColor("#03DAC5"))
                 .show()
