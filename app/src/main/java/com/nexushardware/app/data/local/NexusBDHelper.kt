@@ -117,28 +117,51 @@ class StockInsuficienteException(message: String) : Exception(message)
         return db.insert("usuarios", null, valores)
     }
 
-    //funcion mejorada porque verifica si el usuario ya tiene en el carrito mas unidades del mismo item
+    //función mejorada con validación de stock en tiempo real
     fun agregarAlCarrito(usuarioId: Int, productoId: Int, cantidad: Int): Long {
         val db = this.writableDatabase
 
-        // Validamo si ya existe este producto en el carrito de un usuario
+        //consultamos el stock real del producto
+        val cursorStock = db.rawQuery("SELECT stock, nombre FROM productos WHERE id=?", arrayOf(productoId.toString()))
+        var stockDisponible = 0
+        var nombreProducto = ""
+
+        if (cursorStock.moveToFirst()) {
+            stockDisponible = cursorStock.getInt(0)
+            nombreProducto = cursorStock.getString(1)
+        }
+        cursorStock.close()
+
+        //verificamos cuánto tiene ya este usuario de este producto en el carrito
         val sqlConsulta = "SELECT id, cantidad FROM carrito WHERE usuario_id=? AND producto_id=? AND estado_sync=?"
-        val cursor = db.rawQuery(sqlConsulta, arrayOf(usuarioId.toString(), productoId.toString(), ESTADO_PENDIENTE.toString()))
+        val cursorCarrito = db.rawQuery(sqlConsulta, arrayOf(usuarioId.toString(), productoId.toString(), ESTADO_PENDIENTE.toString()))
 
+        var cantidadActualEnCarrito = 0
+        var idCarritoExistente = -1
+
+        if (cursorCarrito.moveToFirst()) {
+            idCarritoExistente = cursorCarrito.getInt(0)
+            cantidadActualEnCarrito = cursorCarrito.getInt(1)
+        }
+        cursorCarrito.close()
+
+        //IMPORTANTEE, VALIDAMOS SI SUPERA EL LÍMITE
+        val cantidadTotalDeseada = cantidadActualEnCarrito + cantidad
+
+        if (cantidadTotalDeseada > stockDisponible) {
+            db.close() //cerramos la conexión antes de lanzar el error
+            //lanzamos la excepción para que la vista la atrape
+            throw StockInsuficienteException("Solo quedan $stockDisponible unidades de $nombreProducto.")
+        }
+
+        //si tod0 está bien, procedemos a insertar o actualizar
         val resultado: Long
-
-        if (cursor.moveToFirst()) {
-            // Si existe hacemos un update acumulando la cantidad
-            val idCarritoExistente = cursor.getInt(0)
-            val cantidadActual = cursor.getInt(1)
-
-            val values = ContentValues().apply {
-                put("cantidad", cantidadActual + cantidad)
-            }
-            // actualizamos esa fila especifica
+        if (idCarritoExistente != -1) {
+            //actualizamos sumando la cantidad
+            val values = ContentValues().apply { put("cantidad", cantidadTotalDeseada) }
             resultado = db.update("carrito", values, "id=?", arrayOf(idCarritoExistente.toString())).toLong()
         } else {
-            //si no existe, hacemos el insert normal
+            //insertamos como nuevo item
             val values = ContentValues().apply {
                 put("usuario_id", usuarioId)
                 put("producto_id", productoId)
@@ -148,7 +171,7 @@ class StockInsuficienteException(message: String) : Exception(message)
             }
             resultado = db.insert("carrito", null, values)
         }
-        cursor.close()
+
         db.close()
         return resultado
     }
