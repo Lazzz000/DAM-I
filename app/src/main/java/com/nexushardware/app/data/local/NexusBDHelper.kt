@@ -149,7 +149,6 @@ class StockInsuficienteException(message: String) : Exception(message)
         val cantidadTotalDeseada = cantidadActualEnCarrito + cantidad
 
         if (cantidadTotalDeseada > stockDisponible) {
-            db.close() //cerramos la conexión antes de lanzar el error
             //lanzamos la excepción para que la vista la atrape
             throw StockInsuficienteException("Solo quedan $stockDisponible unidades de $nombreProducto.")
         }
@@ -171,8 +170,6 @@ class StockInsuficienteException(message: String) : Exception(message)
             }
             resultado = db.insert("carrito", null, values)
         }
-
-        db.close()
         return resultado
     }
 
@@ -303,7 +300,6 @@ class StockInsuficienteException(message: String) : Exception(message)
             put("url_imagen", url)
         }
         val resultado = db.insert("productos", null, values)
-        db.close()
         return resultado
     }
 
