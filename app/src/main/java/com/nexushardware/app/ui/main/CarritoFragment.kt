@@ -117,27 +117,40 @@ class CarritoFragment : Fragment() {
     }
 
     private fun realizarCompra() {
-        val productosComprados = dbHelper.procesarCompra(1)
+        try {
+            // Intentamos procesar la compra
+            val productosComprados = dbHelper.procesarCompra(1)
 
-        if (productosComprados > 0) {
-            listaItems.clear()
-            adapter.notifyDataSetChanged()
+            if (productosComprados > 0) {
+                listaItems.clear()
+                adapter.notifyDataSetChanged()
 
-            //Actualizamos la interfaz para mostrar el estado vacío pero con éxito
-            binding.rvCarrito.visibility = View.GONE
-            binding.layoutVacio.visibility = View.VISIBLE
+                //Actualizamos la interfaz para mostrar el estado vacío pero con éxito
+                binding.rvCarrito.visibility = View.GONE
+                binding.layoutVacio.visibility = View.VISIBLE
 
-            //reutilizamos el título del estado vacío para felicitar al usuario
-            binding.tvTituloVacio.text = "¡Compra exitosa!\nEstamos preparando tu pedido."
-            binding.tvTituloVacio.setTextColor(android.graphics.Color.parseColor("#03DAC5"))
+                //reutilizamos el título del estado vacío para felicitar al usuario
+                binding.tvTituloVacio.text = "¡Compra exitosa!\nEstamos preparando tu pedido."
+                binding.tvTituloVacio.setTextColor(android.graphics.Color.parseColor("#03DAC5"))
 
-            binding.tvTotalPagar.text = "S/ 0.00"
+                binding.tvTotalPagar.text = "S/ 0.00"
 
-            Snackbar.make(binding.root, "Se procesaron $productosComprados productos.", Snackbar.LENGTH_LONG)
-                .setBackgroundTint(android.graphics.Color.parseColor("#03DAC5"))
-                .setTextColor(android.graphics.Color.BLACK)
-                .show()
-        }
+                Snackbar.make(
+                    binding.root,
+                    "Se procesaron $productosComprados productos.",
+                    Snackbar.LENGTH_LONG
+                )
+                    .setBackgroundTint(android.graphics.Color.parseColor("#03DAC5"))
+                    .setTextColor(android.graphics.Color.BLACK)
+                    .show()
+                }
+        }catch (e: NexusBDHelper.StockInsuficienteException) {
+                //atrapamos el error
+                Snackbar.make(binding.root, "⚠️ ${e.message}", Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(android.graphics.Color.parseColor("#CF6679"))
+                    .setTextColor(android.graphics.Color.BLACK)
+                    .show()
+            }
     }
 
     override fun onDestroyView() {
