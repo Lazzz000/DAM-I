@@ -61,10 +61,10 @@ class DetalleActivity : AppCompatActivity() {
             if (idProducto != -1) {
                 val db = NexusBDHelper(this)
 
-                // Por ahora usamos el usuario_id del admin
-                val exito = db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
+                try {
+                    // Por ahora usamos el usuario_id del admin
+                    db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
 
-                if (exito > -1) {
                     //snackbar de exito
                     Snackbar.make(binding.root, "✅ Agregado al Carrito", Snackbar.LENGTH_LONG)
                         .setBackgroundTint(Color.parseColor("#03DAC5"))
@@ -74,8 +74,15 @@ class DetalleActivity : AppCompatActivity() {
                             // Se cierra automáticamente al hacer clic
                         }
                         .show()
-                } else {
-                    // snackbar de errores
+
+                } catch (e: NexusBDHelper.StockInsuficienteException) {
+                    // Aqui atrapamos el límite de stock
+                    Snackbar.make(binding.root, "⚠️ ${e.message}", Snackbar.LENGTH_LONG)
+                        .setBackgroundTint(Color.parseColor("#CF6679"))
+                        .setTextColor(Color.BLACK)
+                        .show()
+                } catch (e: Exception) {
+                    // snackbar de errores generales
                     Snackbar.make(binding.root, "❌ Error al agregar", Snackbar.LENGTH_LONG)
                         .setBackgroundTint(Color.parseColor("#CF6679"))
                         .setTextColor(Color.BLACK)
