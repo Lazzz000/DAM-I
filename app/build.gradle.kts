@@ -50,4 +50,11 @@ dependencies {
 
     //Librería Glide para carga de imágenes
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    // Retrofit para consumir la API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Convertidor Gson para transformar el JSON a Data Classes de Kotlin
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Corrutinas para llamadas asíncronas (para no congelar la pantalla Dark Tech)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 }
