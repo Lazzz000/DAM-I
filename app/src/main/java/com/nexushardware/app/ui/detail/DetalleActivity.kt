@@ -43,15 +43,19 @@ class DetalleActivity : AppCompatActivity() {
         binding.tvDescripcionDetalle.text = descripcion
         binding.tvStock.text = "Stock: $stock unidades"
         binding.chipCategoria.text = categoria
-        //carga la imagen con glide
+
+        // Construimos la url completa usando GLIDE (igual que en el Adapter)
+        val urlBase = "http://127.0.0.1:8081/img/"
+        val urlCompleta = urlBase + urlImagen
+
+        //carga la imagen con glide usando la URL completa
         Glide.with(this)
-            .load(urlImagen.takeIf { it.isNotEmpty() })
+            .load(urlCompleta) //aquí pasamos la ruta lista
             .placeholder(android.R.drawable.ic_menu_gallery)
             .error(android.R.drawable.ic_menu_gallery)
             .fallback(android.R.drawable.ic_menu_gallery)
             .centerCrop()
             .into(binding.imgDetalle)
-
 
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         binding.tvPrecioDetalle.text = format.format(precio)
@@ -62,21 +66,27 @@ class DetalleActivity : AppCompatActivity() {
                 val db = NexusBDHelper(this)
 
                 try {
-                    // Por ahora usamos el usuario_id del admin
-                    //db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
+                    //USO MIS VARIABLES EXACTAS PARA LA CACHÉ
+                    db.agregarAlCarrito(
+                        usuarioId = 1,
+                        productoId = idProducto,
+                        nombre = nombre,       // Tu variable
+                        precio = precio,       // Tu variable
+                        urlImagen = urlImagen, // Tu variable
+                        stockNube = stock,     // Tu variable
+                        cantidad = 1
+                    )
 
                     //snackbar de exito
                     Snackbar.make(binding.root, "✅ Agregado al Carrito", Snackbar.LENGTH_LONG)
                         .setBackgroundTint(Color.parseColor("#03DAC5"))
                         .setTextColor(Color.BLACK)
-                        .setActionTextColor(Color.BLACK) // El botón "OK" también en negro
-                        .setAction("OK") {
-                            // Se cierra automáticamente al hacer clic
-                        }
+                        .setActionTextColor(Color.BLACK)
+                        .setAction("OK") { }
                         .show()
 
                 } catch (e: NexusBDHelper.StockInsuficienteException) {
-                    // Aqui atrapamos el límite de stock
+                    //aqui atrapamos el límite de stock
                     Snackbar.make(binding.root, "⚠️ ${e.message}", Snackbar.LENGTH_LONG)
                         .setBackgroundTint(Color.parseColor("#CF6679"))
                         .setTextColor(Color.BLACK)
