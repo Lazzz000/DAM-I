@@ -67,7 +67,7 @@ class ProductosFragment : Fragment() {
                 putExtra("descripcion", producto.descripcion)
                 putExtra("precio", producto.precio)
                 putExtra("stock", producto.stock)
-                putExtra("categoria", producto.categoria)
+                //putExtra("categoria", producto.categoria) -- esto da error falta actualizar y ajustar
                 putExtra("url", producto.urlImagen)
             }
             startActivity(intent)
@@ -78,7 +78,7 @@ class ProductosFragment : Fragment() {
     }
 
     private fun obtenerProductosDeBD(): List<Producto> {
-        val lista = mutableListOf<Producto>()
+        /*val lista = mutableListOf<Producto>()
         val db = dbHelper.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM productos", null)
 
@@ -97,7 +97,9 @@ class ProductosFragment : Fragment() {
         }
         cursor.close()
         return lista
-    }
+    }*/
+        //no devolvemos nada solo para probar
+        return emptyList()}
 
     override fun onDestroyView() {
         super.onDestroyView()

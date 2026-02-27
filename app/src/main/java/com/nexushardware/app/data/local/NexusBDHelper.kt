@@ -10,8 +10,8 @@ import com.nexushardware.app.data.model.Producto
 
 //Mi db del proyecto
 class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.db",null, 1) {
-//Exepcion personalizada
-class StockInsuficienteException(message: String) : Exception(message)
+    //Exepcion personalizada
+    class StockInsuficienteException(message: String) : Exception(message)
     companion object {
         const val ESTADO_PENDIENTE = 0 // Producto en el carrito
         const val ESTADO_SINCRONIZADO = 1 // Producto ya comprado
@@ -70,7 +70,7 @@ class StockInsuficienteException(message: String) : Exception(message)
     }
 
     private fun insertarDatosPrueba(db: SQLiteDatabase?) {
-       //inserto datos de prueba
+        //inserto datos de prueba
         db?.execSQL("INSERT INTO usuarios (email, password_hash, nombre_completo, es_admin) VALUES ('admin@nexus.pe', '123456', 'Admin Nexus', 1)")
         //datos de prueba
         db?.execSQL("INSERT INTO categorias (nombre) VALUES ('GPU')")
@@ -97,7 +97,7 @@ class StockInsuficienteException(message: String) : Exception(message)
 
     //DAOs
 
-  //login
+    //login
     fun validarLogin(email: String, pass: String): Boolean {
         val db = this.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM usuarios WHERE email=? AND password_hash=?", arrayOf(email, pass))
@@ -341,7 +341,7 @@ class StockInsuficienteException(message: String) : Exception(message)
                 val categoria = cursor.getString(5)
                 val url = cursor.getString(6) ?: ""
 
-                lista.add(Producto(id, nombre, descripcion, precio, stock, categoria, url))
+                //lista.add(Producto(id, nombre, descripcion, precio, stock, categoria, url)) --falta ajustar
             } while (cursor.moveToNext())
         }
         cursor.close()

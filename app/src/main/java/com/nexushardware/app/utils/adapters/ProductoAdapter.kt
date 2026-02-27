@@ -26,15 +26,20 @@ class ProductoAdapter(
         val producto = listaProductos[position]
 
         holder.binding.tvNombre.text = producto.nombre
-        holder.binding.tvCategoria.text = producto.categoria
+        // Extraemos de forma segura el texto del objeto. Si llega nulo, ponemos un texto por defecto.
+        holder.binding.tvCategoria.text = producto.categoria?.nombreCategoria ?: "Sin Categoría"
 
         //formateo a soles
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         holder.binding.tvPrecio.text = format.format(producto.precio)
 
-        //cargar imagen con Glide
+        //Construimos la URL completa apuntando a tu servidor local con la ruta a la carpeta que se usa en Springboot
+        val urlBase = "http://127.0.0.1:8081/img/"
+        val urlCompleta = urlBase + producto.urlImagen
+
+        //cargamos la imagen con Glide usando la nueva URL
         Glide.with(holder.itemView.context)
-            .load(producto.urlImagen.takeIf { it.isNotEmpty() })
+            .load(urlCompleta)
             .placeholder(R.drawable.ic_image_placeholder)
             .error(R.drawable.ic_image_placeholder)
             .fallback(R.drawable.ic_image_placeholder)
