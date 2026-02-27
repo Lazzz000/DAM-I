@@ -101,7 +101,7 @@ class CarritoFragment : Fragment() {
 
             if (listaItems.isEmpty()) {
                 binding.rvCarrito.visibility = View.GONE
-                binding.layoutVacio.visibility = View.VISIBLE //aqui muestro el nuevo layout
+                binding.layoutVacio.visibility = View.VISIBLE //aquí muestro el nuevo layout
                 binding.tvTituloVacio.text = "Tu carrito está vacío"
                 binding.tvTituloVacio.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
             }
@@ -109,9 +109,30 @@ class CarritoFragment : Fragment() {
             Snackbar.make(binding.root, "${itemBorrado.nombre} eliminado", Snackbar.LENGTH_LONG)
                 .setAction("Deshacer") {
                     try {
-                        //dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
+                        //1. buscamos el stock que guardamos en nuestra "Copia Sombra" local
+                        val dbLectura = dbHelper.readableDatabase
+                        var stockLocal = 0
+                        val cursor = dbLectura.rawQuery("SELECT stock FROM productos WHERE id=?", arrayOf(itemBorrado.idProducto.toString()))
+                        if(cursor.moveToFirst()) {
+                            stockLocal = cursor.getInt(0)
+                        }
+                        cursor.close()
+
+                        //2. restauramos usando la nueva función
+                        dbHelper.agregarAlCarrito(
+                            usuarioId = 1,
+                            productoId = itemBorrado.idProducto,
+                            nombre = itemBorrado.nombre,
+                            precio = itemBorrado.precio,
+                            urlImagen = itemBorrado.urlImagen,
+                            stockNube = stockLocal, //le pasamos el stock recuperado
+                            cantidad = itemBorrado.cantidad //le devolvemos la cantidad exacta que había borrado
+                        )
+
+                        //Refrescamos la UI
                         cargarDatos()
-                }catch (e: NexusBDHelper.StockInsuficienteException){
+
+                    } catch (e: NexusBDHelper.StockInsuficienteException){
                         Snackbar.make(binding.root, "⚠️ ${e.message}", Snackbar.LENGTH_SHORT)
                             .setBackgroundTint(android.graphics.Color.parseColor("#CF6679"))
                             .setTextColor(android.graphics.Color.BLACK)
