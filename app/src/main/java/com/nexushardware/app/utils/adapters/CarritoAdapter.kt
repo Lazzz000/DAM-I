@@ -30,13 +30,16 @@ class CarritoAdapter (
         val format = NumberFormat.getCurrencyInstance(Locale("es", "PE"))
         holder.binding.tvPrecioCart.text = format.format(item.precio * item.cantidad)
 
-        //Agregar glide para la img de prod en carrito
+        //construimos la url completa para GLIDE
+        val urlBase = "http://127.0.0.1:8081/img/"
+        val urlCompleta = urlBase + item.urlImagen // O usa el nombre exacto de la variable de tu ítem
+
+        // cargamos la img con GLIDE
         Glide.with(holder.itemView.context)
-            .load(item.urlImagen.takeIf { it.isNotEmpty() })
+            .load(urlCompleta) // Pasamos la ruta absoluta hacia Spring Boot
             .placeholder(R.drawable.ic_image_placeholder)
             .error(R.drawable.ic_image_placeholder)
             .fallback(R.drawable.ic_image_placeholder)
-            .centerCrop()
             .into(holder.binding.imgProductoCart)
 
         holder.binding.btnEliminar.setOnClickListener {
