@@ -321,7 +321,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
     }
 
     //Función para buscar productos filtrando dinamicamente
-    fun buscarProductos(query: String): List<Producto> {
+    /*fun buscarProductos(query: String): List<Producto> {
         val lista = mutableListOf<Producto>()
         val db = this.readableDatabase
 
@@ -346,7 +346,7 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
         }
         cursor.close()
         return lista
-    }
+    }*/
 
     //faltan agregar mas funciones
 }
