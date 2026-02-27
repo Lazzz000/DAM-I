@@ -13,7 +13,7 @@ import java.util.Locale
 class ProductoAdapter(
     private var listaProductos: List<Producto>,
     private val onProductoClick: (Producto) -> Unit, // Para manejar clics en el futuro
-    private val onAgregarCarritoClick: (Producto) -> Unit //NUEVO CALLBACK
+    private val onAgregarCarritoClick: (Producto) -> Unit //nuevo callback para manejar click de agregar carrito
 ) : RecyclerView.Adapter<ProductoAdapter.ProductoViewHolder>() {
 
     inner class ProductoViewHolder(val binding: ItemProductoBinding) : RecyclerView.ViewHolder(binding.root)

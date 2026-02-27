@@ -63,7 +63,7 @@ class DetalleActivity : AppCompatActivity() {
 
                 try {
                     // Por ahora usamos el usuario_id del admin
-                    db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
+                    //db.agregarAlCarrito(usuarioId = 1, productoId = idProducto, cantidad = 1)
 
                     //snackbar de exito
                     Snackbar.make(binding.root, "✅ Agregado al Carrito", Snackbar.LENGTH_LONG)

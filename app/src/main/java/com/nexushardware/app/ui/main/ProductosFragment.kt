@@ -19,6 +19,9 @@ import com.nexushardware.app.utils.adapters.ProductoAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.graphics.Color
+import com.google.android.material.snackbar.Snackbar
+
 
 class ProductosFragment : Fragment() {
 
@@ -63,10 +66,11 @@ class ProductosFragment : Fragment() {
                 }
 
                 //le pasamos la nueva lista filtrada a un nuevo Adapter
-                val adapterFiltrado = ProductoAdapter(listaFiltrada) { productoClickeado ->
-                    // Llamamos a nuestra función reutilizable
-                    navegarAlDetalle(productoClickeado)
-                }
+                val adapterFiltrado = ProductoAdapter(
+                    listaFiltrada,
+                    onProductoClick = { producto -> navegarAlDetalle(producto) },
+                    onAgregarCarritoClick = { producto -> agregarAlCarritoLocal(producto) } // <-- NUEVO
+                )
                 binding.rvProductos.adapter = adapterFiltrado
 
                 return true
@@ -92,10 +96,11 @@ class ProductosFragment : Fragment() {
 
                     //volvemos al hilo principal para actualizar la interfaz gráfica
                     withContext(Dispatchers.Main) {
-                        val adapter = ProductoAdapter(listaProductos) { producto ->
-                            // Llamamos a nuestra función reutilizable
-                            navegarAlDetalle(producto)
-                        }
+                        val adapter = ProductoAdapter(
+                            listaProductos,
+                            onProductoClick = { producto -> navegarAlDetalle(producto) },
+                            onAgregarCarritoClick = { producto -> agregarAlCarritoLocal(producto) } // <-- NUEVO
+                        )
                         binding.rvProductos.adapter = adapter
                     }
                 } else {
@@ -124,8 +129,39 @@ class ProductosFragment : Fragment() {
         }
         startActivity(intent)
     }
+    private fun agregarAlCarritoLocal(producto: Producto) {
+        try {
+            //Asumimos usuario 1 temporalmente hasta implementar el Login
+            val usuarioId = 1
 
-    /*esta función servía para obtener el productto con la bd local
+            //llamamos a la función actualizada con todos los datos necesarios para el caché
+            val idResultado = dbHelper.agregarAlCarrito(
+                usuarioId,
+                producto.id,
+                producto.nombre,
+                producto.precio,
+                producto.urlImagen ?: "",
+                producto.stock,
+                1 // Cantidad a agregar por clic
+            )
+
+            if (idResultado != -1L) {
+                Snackbar.make(binding.root, "${producto.nombre} agregado al carrito", Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.parseColor("#03DAC5"))
+                    .setTextColor(Color.BLACK)
+                    .show()
+            } else {
+                Snackbar.make(binding.root, "Error al guardar en el carrito", Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.parseColor("#CF6679"))
+                    .show()
+            }
+        } catch (e: NexusBDHelper.StockInsuficienteException) {
+            Snackbar.make(binding.root, e.message ?: "Stock insuficiente", Snackbar.LENGTH_SHORT)
+                .setBackgroundTint(Color.parseColor("#CF6679"))
+                .show()
+        }
+    }
+    /*esta función servía para obtener productos de bd local
     private fun obtenerProductosDeBD(): List<Producto> {
         val lista = mutableListOf<Producto>()
         val db = dbHelper.readableDatabase

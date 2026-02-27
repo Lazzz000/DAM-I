@@ -118,59 +118,78 @@ class NexusBDHelper(context: Context): SQLiteOpenHelper(context, "NexusHardware.
     }
 
     //función mejorada con validación de stock en tiempo real
-    fun agregarAlCarrito(usuarioId: Int, productoId: Int, cantidad: Int): Long {
+    // Función evolucionada con Caché Offline-First
+    fun agregarAlCarrito(usuarioId: Int, productoId: Int, nombre: String, precio: Double,
+        urlImagen: String, stockNube: Int, cantidad: Int): Long {
         val db = this.writableDatabase
+        var resultadoId: Long = -1
 
-        //consultamos el stock real del producto
-        val cursorStock = db.rawQuery("SELECT stock, nombre FROM productos WHERE id=?", arrayOf(productoId.toString()))
-        var stockDisponible = 0
-        var nombreProducto = ""
-
-        if (cursorStock.moveToFirst()) {
-            stockDisponible = cursorStock.getInt(0)
-            nombreProducto = cursorStock.getString(1)
-        }
-        cursorStock.close()
-
-        //verificamos cuánto tiene ya este usuario de este producto en el carrito
-        val sqlConsulta = "SELECT id, cantidad FROM carrito WHERE usuario_id=? AND producto_id=? AND estado_sync=?"
-        val cursorCarrito = db.rawQuery(sqlConsulta, arrayOf(usuarioId.toString(), productoId.toString(), ESTADO_PENDIENTE.toString()))
-
-        var cantidadActualEnCarrito = 0
-        var idCarritoExistente = -1
-
-        if (cursorCarrito.moveToFirst()) {
-            idCarritoExistente = cursorCarrito.getInt(0)
-            cantidadActualEnCarrito = cursorCarrito.getInt(1)
-        }
-        cursorCarrito.close()
-
-        //IMPORTANTEE, VALIDAMOS SI SUPERA EL LÍMITE
-        val cantidadTotalDeseada = cantidadActualEnCarrito + cantidad
-
-        if (cantidadTotalDeseada > stockDisponible) {
-            //lanzamos la excepción para que la vista la atrape
-            throw StockInsuficienteException("Solo quedan $stockDisponible unidades de $nombreProducto.")
-        }
-
-        //si tod0 está bien, procedemos a insertar o actualizar
-        val resultado: Long
-        if (idCarritoExistente != -1) {
-            //actualizamos sumando la cantidad
-            val values = ContentValues().apply { put("cantidad", cantidadTotalDeseada) }
-            resultado = db.update("carrito", values, "id=?", arrayOf(idCarritoExistente.toString())).toLong()
-        } else {
-            //insertamos como nuevo item
-            val values = ContentValues().apply {
-                put("usuario_id", usuarioId)
-                put("producto_id", productoId)
-                put("cantidad", cantidad)
-                put("fecha_agregado", Date().toString())
-                put("estado_sync", ESTADO_PENDIENTE)
+        // Iniciamos la transacción para asegurar que tanto el caché como el carrito se guarden juntos
+        db.beginTransaction()
+        try {
+            //CACHÉ DEL PRODUCTO: guardamos o actualizamos la copia local
+            val valuesProd = ContentValues().apply {
+                put("id", productoId) //Respetamos el ID que viene de Spring Boot
+                put("nombre", nombre)
+                put("precio", precio)
+                put("stock", stockNube)
+                put("url_imagen", urlImagen)
+                put("categoria", "Nube") // Relleno genérico para cumplir con el esquema local
             }
-            resultado = db.insert("carrito", null, values)
+
+            // Verificamos si ya existe en nuestro caché local
+            val cursorProd = db.rawQuery("SELECT id FROM productos WHERE id=?", arrayOf(productoId.toString()))
+            if (cursorProd.moveToFirst()) {
+                db.update("productos", valuesProd, "id=?", arrayOf(productoId.toString()))
+            } else {
+                db.insert("productos", null, valuesProd)
+            }
+            cursorProd.close()
+
+            //LÓGICA DEL CARRITO
+            val sqlConsulta = "SELECT id, cantidad FROM carrito WHERE usuario_id=? AND producto_id=? AND estado_sync=?"
+            val cursorCarrito = db.rawQuery(sqlConsulta, arrayOf(usuarioId.toString(), productoId.toString(), ESTADO_PENDIENTE.toString()))
+
+            var cantidadActualEnCarrito = 0
+            var idCarritoExistente = -1
+
+            if (cursorCarrito.moveToFirst()) {
+                idCarritoExistente = cursorCarrito.getInt(0)
+                cantidadActualEnCarrito = cursorCarrito.getInt(1)
+            }
+            cursorCarrito.close()
+
+            //VALIDACIÓN DE STOCK (Usamos el stock real que mandó Spring Boot)
+            val cantidadTotalDeseada = cantidadActualEnCarrito + cantidad
+
+            if (cantidadTotalDeseada > stockNube) {
+                //lanzamos la excepción para que el Fragment la atrape y muestre el error en rojo
+                throw StockInsuficienteException("Solo quedan $stockNube unidades de $nombre.")
+            }
+
+            //INSERCIÓN O ACTUALIZACIÓN EN EL CARRITO
+            if (idCarritoExistente != -1) {
+                val valuesCarrito = ContentValues().apply { put("cantidad", cantidadTotalDeseada) }
+                resultadoId = db.update("carrito", valuesCarrito, "id=?", arrayOf(idCarritoExistente.toString())).toLong()
+            } else {
+                val valuesCarrito = ContentValues().apply {
+                    put("usuario_id", usuarioId)
+                    put("producto_id", productoId)
+                    put("cantidad", cantidad)
+                    put("fecha_agregado", java.util.Date().toString())
+                    put("estado_sync", ESTADO_PENDIENTE)
+                }
+                resultadoId = db.insert("carrito", null, valuesCarrito)
+            }
+
+            // Si llegamos aquí sin errores, guardamos los cambios físicamente
+            db.setTransactionSuccessful()
+        } finally {
+            // Cerramos la burbuja de seguridad
+            db.endTransaction()
         }
-        return resultado
+
+        return resultadoId
     }
 
     fun obtenerCarrito(usuarioId: Int): List<CarritoItem> {

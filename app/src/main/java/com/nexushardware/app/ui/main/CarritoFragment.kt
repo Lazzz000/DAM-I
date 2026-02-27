@@ -109,7 +109,7 @@ class CarritoFragment : Fragment() {
             Snackbar.make(binding.root, "${itemBorrado.nombre} eliminado", Snackbar.LENGTH_LONG)
                 .setAction("Deshacer") {
                     try {
-                        dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
+                        //dbHelper.agregarAlCarrito(1, itemBorrado.idProducto, itemBorrado.cantidad)
                         cargarDatos()
                 }catch (e: NexusBDHelper.StockInsuficienteException){
                         Snackbar.make(binding.root, "⚠️ ${e.message}", Snackbar.LENGTH_SHORT)
